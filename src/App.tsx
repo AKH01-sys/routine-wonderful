@@ -34,7 +34,7 @@ const App = () => {
             </>
           )}
           <div className="relative max-w-screen-xl mx-auto px-4 py-8">
-            <BrowserRouter>
+            <BrowserRouter> basename="/routine-wonderful">
               <div className="flex flex-col min-h-screen">
                 <main className="flex-grow mb-20 sm:mb-0">
                   <Routes>
