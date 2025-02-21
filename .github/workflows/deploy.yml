@@ -1,6 +1,5 @@
 name: Deploy to GitHub Pages
 
-# Trigger the workflow on push to the main branch
 on:
   push:
     branches:
@@ -11,21 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out your repository code
+      # Step 1: Checkout your repository code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js (using version 18 here)
+      # Step 2: Setup Node.js (using version 18)
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      # Step 3: Install dependencies using the lock file
+      # Step 3: Install dependencies using your lock file
       - name: Install dependencies
         run: npm ci
 
-      # Step 4: Build your project (this runs your build script, e.g., "vite build")
+      # Step 4: Build your project (this should run the build script defined in package.json)
       - name: Build the project
         run: npm run build
 
@@ -35,3 +34,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true
