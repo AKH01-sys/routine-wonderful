@@ -1,0 +1,51 @@
+
+.abstract-shape {
+  position: fixed;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.shape-1 {
+  width: 100px;
+  height: 100px;
+  background: #F2FCE2;
+  border-radius: 50%;
+  top: 10%;
+  left: 15%;
+}
+
+.shape-2 {
+  width: 120px;
+  height: 80px;
+  background: #FEF7CD;
+  transform: skew(-20deg);
+  top: 30%;
+  right: 20%;
+}
+
+.shape-3 {
+  width: 150px;
+  height: 150px;
+  background: #FEC6A1;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  bottom: 25%;
+  left: 25%;
+}
+
+.shape-4 {
+  width: 120px;
+  height: 120px;
+  background: #E5DEFF;
+  transform: rotate(45deg);
+  top: 15%;
+  right: 35%;
+}
+
+.shape-5 {
+  width: 140px;
+  height: 80px;
+  background: #FFDEE2;
+  clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+  bottom: 20%;
+  right: 15%;
+}
