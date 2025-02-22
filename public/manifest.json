@@ -4,15 +4,11 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "icons/icon-192x192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "icons/icon-512x512.png",
+      // The icon is inside "public/lovable-uploads/"
+      "src": "/lovable-uploads/89a650a8-5904-4b2d-813a-b1c664fb2d78.png",
       "type": "image/png",
       "sizes": "512x512"
     }
