@@ -79,9 +79,11 @@ const TodayRoutine = () => {
             ...entry,
             habits: entry.habits.map(habit => {
               if (habit.name === currentTask.habit) {
+                const status: "completed" | "neutral" | "failed" = 
+                  isComplete ? 'completed' : isNeutral ? 'neutral' : 'failed';
                 return {
                   ...habit,
-                  status: isComplete ? 'completed' : isNeutral ? 'neutral' : 'failed'
+                  status
                 };
               }
               return habit;
@@ -91,15 +93,16 @@ const TodayRoutine = () => {
         return entry;
       });
     } else {
+      const status: "completed" | "neutral" | "failed" = 
+        isComplete ? 'completed' : isNeutral ? 'neutral' : 'failed';
+      
       newHabitHistory.push({
         date: today,
         routineName: selectedRoutine.name,
         habits: selectedRoutine.tasks.map(task => ({
           name: task.habit,
           streak: 0,
-          status: task.id === taskId 
-            ? (isComplete ? 'completed' : isNeutral ? 'neutral' : 'failed')
-            : 'failed'
+          status: task.id === taskId ? status : 'failed'
         }))
       });
     }
@@ -134,7 +137,7 @@ const TodayRoutine = () => {
             if (habit.name === currentTask.habit) {
               return {
                 ...habit,
-                status: 'failed'
+                status: 'failed' as const
               };
             }
             return habit;
