@@ -28,7 +28,8 @@ self.addEventListener('fetch', event => {
           if (
             networkResponse &&
             networkResponse.status === 200 &&
-            networkResponse.type === 'basic'
+            networkResponse.type === 'basic' &&
+            !event.request.url.startsWith('chrome-extension')
           ) {
             const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME).then(cache => {
