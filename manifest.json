@@ -1,0 +1,16 @@
+{
+  "short_name": "Routine",
+  "name": "Routine Wonderful",
+  "start_url": "/routine-wonderful/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      // The icon is inside "public/lovable-uploads/"
+      "src": "/routine-wonderful/lovable-uploads/89a650a8-5904-4b2d-813a-b1c664fb2d78.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

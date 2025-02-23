@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Day Off Dashboard</title>
+    <meta name="description" content="Lovable Generated Project" />
+    <meta name="author" content="Lovable" />
+
+    <!-- Open Graph image -->
+    <meta property="og:image" content="/routine-wonderful/og-image.png" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/routine-wonderful/manifest.json" />
+
+    <!-- iOS-specific meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Day Off Dashboard" />
+    <link rel="apple-touch-icon" href="/routine-wonderful/lovable-uploads/89a650a8-5904-4b2d-813a-b1c664fb2d78.png" />
+
+    <!-- Optionally, include a startup image (splash screen) for iOS if desired -->
+    <script type="module" crossorigin src="/routine-wonderful/assets/index-Dv4dWXqd.js"></script>
+    <link rel="stylesheet" crossorigin href="/routine-wonderful/assets/index-Bi3fIB4b.css">
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <!-- Use a relative path so that it respects the base configured in Vite -->
+
+    <!-- Service Worker registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/routine-wonderful/service-worker.js')
+            .then(registration => {
+              console.log('Service Worker registered with scope:', registration.scope);
+            })
+            .catch(error => {
+              console.error('Service Worker registration failed:', error);
+            });
+        });
+      }
+    </script>
+  </body>
+</html>
