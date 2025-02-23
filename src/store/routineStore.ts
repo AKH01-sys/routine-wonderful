@@ -1,4 +1,6 @@
+
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
 import type { Routine, RoutineTask, Task, HabitHistoryEntry } from '@/types/routine';
 import { type ThemeName } from "@/types/theme";
@@ -37,87 +39,112 @@ interface RoutineState {
   setTheme: (theme: ThemeName) => void;
 }
 
-const useRoutineStore = create<RoutineState>((set) => ({
-  routines: [],
-  selectedRoutine: null,
-  todayNotes: {
-    permanent: '',
-    temporary: '',
-  },
-  stats: {
-    streaks: 0,
-    currentStreak: 0,
-    routineStreak: 0,
-    neutralDays: 0,
-    dayOff: {
-      used: 0,
-      limit: 3,
-      lastUpdated: new Date(),
-      usedToday: false,
-    },
-    habitHistory: [],
-  },
-  tasks: [],
-  addRoutine: (routine) =>
-    set((state) => ({ routines: [...state.routines, routine] })),
-  updateRoutine: (routine) =>
-    set((state) => ({
-      routines: state.routines.map((r) => (r.id === routine.id ? routine : r)),
-    })),
-  deleteRoutine: (routineId) =>
-    set((state) => ({
-      routines: state.routines.filter((routine) => routine.id !== routineId),
-      selectedRoutine:
-        state.selectedRoutine?.id === routineId ? null : state.selectedRoutine,
-    })),
-  selectRoutine: (routine) => set({ selectedRoutine: routine }),
-  updateTodayNotes: (notes) =>
-    set((state) => ({
-      todayNotes: { ...state.todayNotes, ...notes },
-    })),
-  updateStats: (statsUpdate) =>
-    set((state) => {
-      const newStats = { ...state.stats, ...statsUpdate };
-      
-      // Recalculate streaks based on habit history
-      if (statsUpdate.habitHistory) {
-        const sortedHistory = [...statsUpdate.habitHistory].sort((a, b) => 
-          new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-        
-        let currentStreak = 0;
-        let routineStreak = 0;
-        
-        for (const entry of sortedHistory) {
-          const allComplete = entry.habits.every(h => 
-            h.status === 'completed' || h.status === 'neutral'
-          );
+const useRoutineStore = create<RoutineState>()(
+  persist(
+    (set) => ({
+      routines: [],
+      selectedRoutine: null,
+      todayNotes: {
+        permanent: '',
+        temporary: '',
+      },
+      stats: {
+        streaks: 0,
+        currentStreak: 0,
+        routineStreak: 0,
+        neutralDays: 0,
+        dayOff: {
+          used: 0,
+          limit: 3,
+          lastUpdated: new Date(),
+          usedToday: false,
+        },
+        habitHistory: [],
+      },
+      tasks: [],
+      addRoutine: (routine) =>
+        set((state) => ({ routines: [...state.routines, routine] })),
+      updateRoutine: (routine) =>
+        set((state) => ({
+          routines: state.routines.map((r) => (r.id === routine.id ? routine : r)),
+        })),
+      deleteRoutine: (routineId) =>
+        set((state) => ({
+          routines: state.routines.filter((routine) => routine.id !== routineId),
+          selectedRoutine:
+            state.selectedRoutine?.id === routineId ? null : state.selectedRoutine,
+        })),
+      selectRoutine: (routine) => set({ selectedRoutine: routine }),
+      updateTodayNotes: (notes) =>
+        set((state) => ({
+          todayNotes: { ...state.todayNotes, ...notes },
+        })),
+      updateStats: (statsUpdate) =>
+        set((state) => {
+          const newStats = { ...state.stats, ...statsUpdate };
           
-          if (allComplete) {
-            routineStreak++;
-          } else {
-            break;
+          if (statsUpdate.habitHistory) {
+            const sortedHistory = [...statsUpdate.habitHistory].sort((a, b) => 
+              new Date(b.date).getTime() - new Date(a.date).getTime()
+            );
+            
+            let currentStreak = 0;
+            let routineStreak = 0;
+            
+            for (const entry of sortedHistory) {
+              const allComplete = entry.habits.every(h => 
+                h.status === 'completed' || h.status === 'neutral'
+              );
+              
+              if (allComplete) {
+                routineStreak++;
+              } else {
+                break;
+              }
+            }
+            
+            newStats.routineStreak = routineStreak;
           }
-        }
-        
-        newStats.routineStreak = routineStreak;
-      }
-      
-      return { stats: newStats };
+          
+          return { stats: newStats };
+        }),
+      addTask: (task) => set((state) => ({ tasks: [...state.tasks, task] })),
+      completeTask: (taskId) =>
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === taskId ? { ...task, completed: true } : task
+          ),
+        })),
+      deleteTask: (taskId) =>
+        set((state) => ({
+          tasks: state.tasks.filter((task) => task.id !== taskId),
+        })),
+      theme: "simple" as ThemeName,
+      setTheme: (theme) => set({ theme }),
     }),
-  addTask: (task) => set((state) => ({ tasks: [...state.tasks, task] })),
-  completeTask: (taskId) =>
-    set((state) => ({
-      tasks: state.tasks.map((task) =>
-        task.id === taskId ? { ...task, completed: true } : task
-      ),
-    })),
-  deleteTask: (taskId) =>
-    set((state) => ({
-      tasks: state.tasks.filter((task) => task.id !== taskId),
-    })),
-  theme: "simple" as ThemeName,
-  setTheme: (theme) => set({ theme }),
-}));
+    {
+      name: 'routine-storage',
+      storage: createJSONStorage(() => localStorage, {
+        reviver: (key: string, value: any) => {
+          // Handle Date objects during deserialization
+          if (
+            typeof value === 'string' && 
+            (key === 'lastUpdated' || key === 'createdAt' || key === 'updatedAt' || key === 'dueDate')
+          ) {
+            return new Date(value);
+          }
+          return value;
+        },
+        replacer: (key: string, value: any) => {
+          // Handle Date objects during serialization
+          if (value instanceof Date) {
+            return value.toISOString();
+          }
+          return value;
+        },
+      })
+    }
+  )
+);
 
 export default useRoutineStore;
