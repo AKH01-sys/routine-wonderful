@@ -16,9 +16,28 @@ const urlsToCache = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+      .then(cache => {
+        // Instead of cache.addAll, fetch each URL individually.
+        return Promise.all(
+          urlsToCache.map(url => {
+            return fetch(url)
+              .then(response => {
+                if (!response.ok) {
+                  // Log an error but do not reject the entire Promise.all
+                  console.error(`Request for ${url} failed with status ${response.status}`);
+                  return;
+                }
+                // If successful, put a clone into the cache.
+                return cache.put(url, response);
+              })
+              .catch(error => {
+                console.error(`Failed to fetch ${url}:`, error);
+              });
+          })
+        );
+      })
       .catch(error => {
-        console.error('Failed to cache:', error);
+        console.error('Failed to cache during install:', error);
       })
   );
 });
@@ -31,27 +50,25 @@ self.addEventListener('fetch', event => {
     return fetch(event.request);
   }
 
-  // For navigation requests (like refreshing the page), always serve index.html.
+  // For navigation requests (like when refreshing the page), serve index.html
   if (event.request.mode === 'navigate') {
     event.respondWith(
       caches.match('/routine-wonderful/index.html')
-        .then(cachedResponse => {
-          return cachedResponse || fetch(event.request);
-        })
+        .then(cachedResponse => cachedResponse || fetch(event.request))
         .catch(error => {
           console.error('Error fetching navigation request:', error);
-          // Optionally, you can return a fallback page here.
+          // Optionally return a fallback page here.
         })
     );
     return;
   }
-  
-  // For all other requests, try the cache first, then the network.
+
+  // For all other requests, try the cache first then fetch from network.
   event.respondWith(
     caches.match(event.request)
       .then(response => {
         return response || fetch(event.request).then(networkResponse => {
-          // Only cache valid responses.
+          // If the response is valid, clone it and store it in the cache.
           if (
             networkResponse &&
             networkResponse.status === 200 &&
@@ -67,5 +84,3 @@ self.addEventListener('fetch', event => {
       })
   );
 });
-
-
